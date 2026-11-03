@@ -11,6 +11,18 @@ A phone-friendly page for building your own schedule at a conference or event.
 
 It works for any event. You give it the agenda as a couple of files, and it does the rest. A made-up sample event is included so you can try it straight away.
 
+<table>
+<tr>
+<td align="center"><img src="docs/screenshots/phone-schedule.png" width="250" alt="Saved schedule on a phone: the session running now is highlighted in green"><br><b>Your schedule</b><br>What's on now is highlighted</td>
+<td align="center"><img src="docs/screenshots/phone-map.png" width="250" alt="Venue map on a phone with a pin on each of your rooms, labelled with session times"><br><b>Venue map</b><br>A pin on each of your rooms</td>
+<td align="center"><img src="docs/screenshots/phone-pick.png" width="250" alt="Choosing a session: a 90-minute lab is selected and the app lists the talks it overlaps"><br><b>Picking</b><br>Warns what a long session overlaps</td>
+</tr>
+</table>
+
+<img src="docs/screenshots/desktop-schedule.png" alt="Saved schedule on a desktop browser: the current session and the next one, with a Show on map button">
+
+*Screenshots use the made-up sample event in `samples/example-event/`.*
+
 It runs with Docker, a free tool that runs ready-made software packages ("containers") with one command. You don't need to know how to program.
 
 ---

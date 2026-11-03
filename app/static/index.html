@@ -276,7 +276,8 @@ function roomHtml(room) {
 // Your rooms: room -> start times of your sessions there (a room can host several).
 function myRooms(ch) {
   const out = {};
-  for (const id of agendaIds(ch)) (out[S[id].room] ||= []).push(fmt(S[id].start).replace(/ [AP]M$/, ''));
+  // Set: a long session chosen in two slots is one visit to the room.
+  for (const id of new Set(agendaIds(ch))) (out[S[id].room] ||= []).push(fmt(S[id].start).replace(/ [AP]M$/, ''));
   return out;
 }
 function mapHtml(ch) {
