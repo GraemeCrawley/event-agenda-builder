@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700" font-family="Helvetica, Arial, sans-serif">
+  <!-- Fictional floor plan for the sample event. Replace with your venue's map. -->
+  <rect width="1000" height="700" fill="#f2f2ef"/>
+  <rect x="40" y="40" width="920" height="620" rx="12" fill="#fff" stroke="#8a8f98" stroke-width="6"/>
+  <rect x="80" y="80" width="220" height="260" rx="8" fill="#e8eef7" stroke="#8a8f98" stroke-width="3"/>
+  <text x="190" y="280" font-size="34" font-weight="700" fill="#43506a" text-anchor="middle">201</text>
+  <rect x="330" y="80" width="220" height="260" rx="8" fill="#e8eef7" stroke="#8a8f98" stroke-width="3"/>
+  <text x="440" y="280" font-size="34" font-weight="700" fill="#43506a" text-anchor="middle">202</text>
+  <rect x="580" y="80" width="220" height="260" rx="8" fill="#e8eef7" stroke="#8a8f98" stroke-width="3"/>
+  <text x="690" y="280" font-size="34" font-weight="700" fill="#43506a" text-anchor="middle">203</text>
+  <rect x="830" y="80" width="90" height="260" rx="8" fill="#eef2ee" stroke="#8a8f98" stroke-width="3"/>
+  <text x="875" y="215" font-size="22" fill="#4d5d4d" text-anchor="middle" transform="rotate(-90 875 210)">Stairs / lifts</text>
+  <rect x="80" y="380" width="840" height="40" fill="#f6efe2"/>
+  <text x="500" y="408" font-size="20" fill="#6a5a43" text-anchor="middle">Corridor</text>
+  <rect x="200" y="460" width="480" height="160" rx="8" fill="#e2f4ed" stroke="#8a8f98" stroke-width="3"/>
+  <text x="440" y="600" font-size="34" font-weight="700" fill="#2f6b57" text-anchor="middle">204 · Labs</text>
+  <rect x="720" y="460" width="200" height="160" rx="8" fill="#eef2ee" stroke="#8a8f98" stroke-width="3"/>
+  <text x="820" y="548" font-size="24" fill="#4d5d4d" text-anchor="middle">Quiet room</text>
+</svg>

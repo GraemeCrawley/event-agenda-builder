@@ -1,0 +1,8 @@
+start,end,title,room,description,speakers,url,fixed,lab
+8:00 AM,9:00 AM,Breakfast,"Level 1, Hall A",Coffee and pastries.,,,yes,
+9:00 AM,10:00 AM,Opening Keynote,"Level 1, Hall A",The year ahead.,"Fay Fixture (CTO, Sample Labs); Bob Sample (Sample Labs)",https://example.com/agenda/keynote,,
+10:15 AM,10:45 AM,Getting Started with Event Data,"Level 2, Room 201",A gentle introduction.,"Dana Placeholder (Data Scientist, Example Corp)",https://example.com/agenda/data,,
+10:15 AM,10:45 AM,Designing Calm Interfaces,"Level 2, Room 202",Making busy screens feel simple.,Hana Mockup (Mock Industries),,,
+10:15 AM,11:45 AM,Build a Tiny Web App,"Level 2, Room 204",Bring a laptop.,Casey Demo; Ada Example (Example Corp),,,yes
+11:00 AM,11:30 AM,Scaling a Side Project,"Level 2, Room 201",What broke along the way.,Gus Stub (Fictional Systems),,,
+11:00 AM,11:30 AM,Panel: Remote Teams That Work,"Level 1, Hall A",Three managers compare notes.,,,,

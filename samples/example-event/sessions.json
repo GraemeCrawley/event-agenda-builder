@@ -1,0 +1,340 @@
+[
+ {
+  "id": "s00",
+  "start": "08:00",
+  "end": "17:00",
+  "title": "Registration",
+  "room": "Level 1, Lobby",
+  "description": "Pick up your badge any time during the day.",
+  "speakers": [],
+  "url": "https://example.com/agenda/s00",
+  "fixed": true
+ },
+ {
+  "id": "s01",
+  "start": "08:00",
+  "end": "09:00",
+  "title": "Breakfast",
+  "room": "Level 1, Hall A",
+  "description": "Coffee and pastries in the main hall.",
+  "speakers": [],
+  "url": "https://example.com/agenda/s01",
+  "fixed": true
+ },
+ {
+  "id": "s02",
+  "start": "09:00",
+  "end": "10:00",
+  "title": "Opening Keynote: The Year Ahead",
+  "room": "Level 1, Hall A",
+  "description": "What changed this year, what's coming next, and a few live demos.",
+  "speakers": [
+   {
+    "name": "Fay Fixture",
+    "role": "CTO",
+    "org": "Sample Labs"
+   },
+   {
+    "name": "Bob Sample",
+    "role": "Product Lead",
+    "org": "Sample Labs"
+   }
+  ],
+  "url": "https://example.com/agenda/s02"
+ },
+ {
+  "id": "s03",
+  "start": "10:15",
+  "end": "10:45",
+  "title": "Getting Started with Event Data",
+  "room": "Level 2, Room 201",
+  "description": "A gentle introduction to collecting and cleaning event data, with no prior experience needed.",
+  "speakers": [
+   {
+    "name": "Dana Placeholder",
+    "role": "Data Scientist",
+    "org": "Example Corp"
+   }
+  ],
+  "url": "https://example.com/agenda/s03"
+ },
+ {
+  "id": "s04",
+  "start": "10:15",
+  "end": "10:45",
+  "title": "Designing Calm Interfaces",
+  "room": "Level 2, Room 202",
+  "description": "Practical ways to make busy screens feel simple: spacing, hierarchy and fewer choices.",
+  "speakers": [
+   {
+    "name": "Hana Mockup",
+    "role": "Designer",
+    "org": "Mock Industries"
+   }
+  ],
+  "url": "https://example.com/agenda/s04"
+ },
+ {
+  "id": "s05",
+  "start": "10:15",
+  "end": "11:45",
+  "title": "Hands-on Lab: Build a Tiny Web App",
+  "room": "Level 2, Room 204",
+  "description": "Bring a laptop. In 90 minutes you build and run a small web app from a starter template.",
+  "speakers": [
+   {
+    "name": "Casey Demo",
+    "role": "Developer Advocate",
+    "org": "Fictional Systems"
+   },
+   {
+    "name": "Ada Example",
+    "role": "Staff Engineer",
+    "org": "Example Corp"
+   }
+  ],
+  "url": "https://example.com/agenda/s05"
+ },
+ {
+  "id": "s06",
+  "start": "10:15",
+  "end": "10:45",
+  "title": "Security Basics for Small Teams",
+  "room": "Level 2, Room 203",
+  "description": "The handful of habits that prevent most incidents, explained without jargon.",
+  "speakers": [
+   {
+    "name": "Eli Test",
+    "role": "Security Engineer",
+    "org": "Mock Industries"
+   }
+  ],
+  "url": "https://example.com/agenda/s06"
+ },
+ {
+  "id": "s07",
+  "start": "11:00",
+  "end": "11:30",
+  "title": "Scaling a Side Project",
+  "room": "Level 2, Room 201",
+  "description": "How a weekend project grew to thousands of users, and what broke along the way.",
+  "speakers": [
+   {
+    "name": "Gus Stub",
+    "role": "Engineering Manager",
+    "org": "Fictional Systems"
+   }
+  ],
+  "url": "https://example.com/agenda/s07"
+ },
+ {
+  "id": "s08",
+  "start": "11:00",
+  "end": "11:30",
+  "title": "Intro to Machine Learning, Without the Maths",
+  "room": "Level 2, Room 202",
+  "description": "The core ideas behind machine learning, explained with everyday examples.",
+  "speakers": [
+   {
+    "name": "Dana Placeholder",
+    "role": "Data Scientist",
+    "org": "Example Corp"
+   }
+  ],
+  "url": "https://example.com/agenda/s08"
+ },
+ {
+  "id": "s09",
+  "start": "11:00",
+  "end": "11:30",
+  "title": "Panel: Remote Teams That Work",
+  "room": "Level 1, Hall A",
+  "description": "Three managers compare notes on running teams across time zones.",
+  "speakers": [
+   {
+    "name": "Gus Stub",
+    "role": "Engineering Manager",
+    "org": "Fictional Systems"
+   },
+   {
+    "name": "Bob Sample",
+    "role": "Product Lead",
+    "org": "Sample Labs"
+   },
+   {
+    "name": "Fay Fixture",
+    "role": "CTO",
+    "org": "Sample Labs"
+   }
+  ],
+  "url": "https://example.com/agenda/s09"
+ },
+ {
+  "id": "s10",
+  "start": "11:45",
+  "end": "13:00",
+  "title": "Lunch",
+  "room": "Level 1, Hall A",
+  "description": "Lunch is served in the main hall. The expo is open.",
+  "speakers": [],
+  "url": "https://example.com/agenda/s10"
+ },
+ {
+  "id": "s11",
+  "start": "13:00",
+  "end": "13:30",
+  "title": "Writing Docs People Read",
+  "room": "Level 2, Room 201",
+  "description": "Short, structured, example-first: how to write documentation that gets used.",
+  "speakers": [
+   {
+    "name": "Casey Demo",
+    "role": "Developer Advocate",
+    "org": "Fictional Systems"
+   }
+  ],
+  "url": "https://example.com/agenda/s11"
+ },
+ {
+  "id": "s12",
+  "start": "13:00",
+  "end": "13:45",
+  "title": "Case Study: Moving to the Cloud",
+  "room": "Level 2, Room 202",
+  "description": "One company's move off its own servers: the plan, the surprises and the bill.",
+  "speakers": [
+   {
+    "name": "Ada Example",
+    "role": "Staff Engineer",
+    "org": "Example Corp"
+   }
+  ],
+  "url": "https://example.com/agenda/s12"
+ },
+ {
+  "id": "s13",
+  "start": "13:00",
+  "end": "13:30",
+  "title": "Accessibility in Ten Minutes a Day",
+  "room": "Level 2, Room 203",
+  "description": "Small, regular checks that make products usable by more people.",
+  "speakers": [
+   {
+    "name": "Hana Mockup",
+    "role": "Designer",
+    "org": "Mock Industries"
+   }
+  ],
+  "url": "https://example.com/agenda/s13"
+ },
+ {
+  "id": "s14",
+  "start": "14:00",
+  "end": "14:30",
+  "title": "Observability for Everyone",
+  "room": "Level 2, Room 201",
+  "description": "Logs, metrics and traces: what each is for and when you need it.",
+  "speakers": [
+   {
+    "name": "Eli Test",
+    "role": "Security Engineer",
+    "org": "Mock Industries"
+   },
+   {
+    "name": "Gus Stub",
+    "role": "Engineering Manager",
+    "org": "Fictional Systems"
+   }
+  ],
+  "url": "https://example.com/agenda/s14"
+ },
+ {
+  "id": "s15",
+  "start": "14:00",
+  "end": "14:30",
+  "title": "The Release Checklist",
+  "room": "Level 2, Room 203",
+  "description": "A one-page checklist for shipping safely, built from real outages.",
+  "speakers": [
+   {
+    "name": "Ada Example",
+    "role": "Staff Engineer",
+    "org": "Example Corp"
+   }
+  ],
+  "url": "https://example.com/agenda/s15"
+ },
+ {
+  "id": "s16",
+  "start": "14:00",
+  "end": "15:15",
+  "title": "Workshop: Your First Data Dashboard",
+  "room": "Level 2, Room 204",
+  "description": "Bring a laptop. Turn a spreadsheet into a shareable dashboard, step by step.",
+  "speakers": [
+   {
+    "name": "Dana Placeholder",
+    "role": "Data Scientist",
+    "org": "Example Corp"
+   },
+   {
+    "name": "Casey Demo",
+    "role": "Developer Advocate",
+    "org": "Fictional Systems"
+   }
+  ],
+  "url": "https://example.com/agenda/s16"
+ },
+ {
+  "id": "s17",
+  "start": "14:45",
+  "end": "15:15",
+  "title": "Product Roadmaps Without the Drama",
+  "room": "Level 2, Room 202",
+  "description": "How to plan, say no and keep everyone informed.",
+  "speakers": [
+   {
+    "name": "Bob Sample",
+    "role": "Product Lead",
+    "org": "Sample Labs"
+   }
+  ],
+  "url": "https://example.com/agenda/s17"
+ },
+ {
+  "id": "s18",
+  "start": "14:45",
+  "end": "15:15",
+  "title": "Lightning Talks",
+  "room": "Level 1, Hall A",
+  "description": "Six five-minute talks from attendees. Sign up at registration.",
+  "speakers": [],
+  "url": "https://example.com/agenda/s18"
+ },
+ {
+  "id": "s19",
+  "start": "15:30",
+  "end": "16:15",
+  "title": "Closing Keynote: What We Learned",
+  "room": "Level 1, Hall A",
+  "description": "Highlights from the day and what's next for the community.",
+  "speakers": [
+   {
+    "name": "Fay Fixture",
+    "role": "CTO",
+    "org": "Sample Labs"
+   }
+  ],
+  "url": "https://example.com/agenda/s19"
+ },
+ {
+  "id": "s20",
+  "start": "16:15",
+  "end": "17:30",
+  "title": "Reception",
+  "room": "Level 1, Hall A",
+  "description": "Drinks and snacks. A good time to meet the speakers.",
+  "speakers": [],
+  "url": "https://example.com/agenda/s20"
+ }
+]

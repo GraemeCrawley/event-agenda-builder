@@ -1,0 +1,25 @@
+# Agenda Builder: one container, one event.
+#
+#   Web page on http://localhost:${PORT:-8000}
+#   Your event's files are read from ${EVENT_FOLDER} (default: the sample event).
+#   Saved agendas live in the Docker volume "agendas".
+#
+# Settings come from the .env file next to this one (copy .env.example).
+
+name: agenda-builder
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${BIND:-127.0.0.1}:${PORT:-8000}:8000"
+    environment:
+      EVENT_DIR: /event
+      DATA_DIR: /data
+    volumes:
+      - ${EVENT_FOLDER:-./samples/example-event}:/event:ro
+      - agendas:/data
+
+volumes:
+  agendas:

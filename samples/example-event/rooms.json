@@ -1,0 +1,8 @@
+{
+ "Level 1, Lobby":    {"map": "1", "x": 18, "y": 72},
+ "Level 1, Hall A":   {"map": "1", "x": 48, "y": 40},
+ "Level 2, Room 201": {"map": "2", "x": 17, "y": 30},
+ "Level 2, Room 202": {"map": "2", "x": 42, "y": 30},
+ "Level 2, Room 203": {"map": "2", "x": 67, "y": 30},
+ "Level 2, Room 204": {"map": "2", "x": 42, "y": 78}
+}

@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b6fcb">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗓</text></svg>">
+<title>Agenda Builder</title>
+<style>
+:root {
+  --bg: #f4f6f9; --card: #fff; --ink: #14202e; --muted: #5d6b7c; --line: #dde3ea;
+  --accent: #0b6fcb; --accent-soft: #e5f0fb; --warn: #8a5a00; --warn-soft: #fff4de; --star: #b7791f;
+  --lab: #0f7f63; --lab-soft: #e2f4ed; --lab-line: #9fd8c4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f141a; --card: #19212b; --ink: #e8edf3; --muted: #9aa8b8; --line: #2a3542;
+    --accent: #4ea3f5; --accent-soft: #15293d; --warn: #f1c26b; --warn-soft: #33290f; --star: #f1c26b;
+    --lab: #52d1a6; --lab-soft: #11302a; --lab-line: #24634f;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+header {
+  position: sticky; top: 0; z-index: 2; background: var(--bg);
+  padding: calc(env(safe-area-inset-top) + 12px) 16px 10px; border-bottom: 1px solid var(--line);
+}
+.eyebrow { font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
+h1 { font-size: 24px; margin: 2px 0 0; letter-spacing: -.01em; }
+.bar { height: 3px; background: var(--line); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+main { padding: 12px 16px calc(env(safe-area-inset-bottom) + 96px); max-width: 640px; margin: 0 auto; }
+.card {
+  background: var(--card); border: 2px solid var(--line); border-radius: 14px;
+  padding: 14px; margin-bottom: 10px; cursor: pointer;
+}
+.card.fixed { cursor: default; }
+.card.sel { border-color: var(--accent); background: var(--accent-soft); }
+/* Hands-on labs: own colour everywhere (picker, saved agenda), selected or not. */
+.card.lab { background: var(--lab-soft); border-color: var(--lab-line); }
+.card.lab.sel { border-color: var(--lab); }
+.card.lab.sel .radio { border-color: var(--lab); }
+.labtag { display: inline-block; font-size: 12px; font-weight: 700; color: var(--lab); margin-bottom: 3px; letter-spacing: .02em; }
+.row { display: flex; gap: 12px; align-items: flex-start; }
+.radio {
+  flex: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); margin-top: 2px;
+}
+.sel .radio { border: 7px solid var(--accent); }
+.grow { flex: 1; min-width: 0; }
+.title { font-weight: 600; }
+.meta { color: var(--muted); font-size: 14px; margin-top: 3px; }
+.badge {
+  display: inline-block; font-size: 12px; font-weight: 600; color: var(--star);
+  margin-bottom: 3px;
+}
+.note {
+  font-size: 14px; background: var(--warn-soft); color: var(--warn);
+  border-radius: 10px; padding: 8px 10px; margin-top: 8px;
+}
+.more {
+  background: none; border: 0; color: var(--accent); font: inherit; font-size: 14px;
+  padding: 8px 0 0; cursor: pointer;
+}
+.details { font-size: 15px; margin-top: 6px; }
+.details p { margin: 6px 0; }
+.details .why { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; }
+.speaker { color: var(--muted); font-size: 14px; }
+.missed {
+  background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 10px;
+  padding: 8px 10px; margin-top: 6px;
+}
+.missed .title { font-size: 15px; }
+.ext {
+  flex: none; width: 34px; height: 34px; margin: -6px -6px 0 0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); text-decoration: none; font-size: 18px; font-weight: 600;
+}
+.ext:active { background: var(--accent-soft); }
+.roomlink { color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; }
+/* Floor buttons stacked on the map's left, in the order event.json lists the maps. */
+.maprow { display: flex; gap: 8px; align-items: stretch; }
+.maprow .mapbox { flex: 1; min-width: 0; }
+.tabs { flex: none; width: 64px; display: flex; flex-direction: column; gap: 6px; }
+.tab {
+  flex: 1; font: inherit; padding: 6px 2px; border-radius: 10px; line-height: 1.15;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.tab b { font-size: 18px; }
+.tab small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); }
+.tab.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tab.on small { color: #fff; opacity: .85; }
+/* Fixed-height box (tallest floor's ratio, set from JS) so switching floors never changes page height. */
+.mapbox { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line); background: #e6e7e9; overflow: hidden; }
+.mapimg { display: flex; align-items: center; width: 100%; height: 100%; }
+.frame { position: relative; width: 100%; }
+.frame img { display: block; width: 100%; height: auto; }
+.pin { position: absolute; width: 0; height: 0; pointer-events: none; }
+.pin i { position: absolute; left: -9px; top: -9px; }
+.pin span { position: absolute; left: 11px; top: -10px; }
+.pin i {
+  width: 18px; height: 18px; border-radius: 50%; background: #e0245e; border: 3px solid #fff;
+  box-shadow: 0 0 0 0 rgba(224, 36, 94, .6); animation: pulse 1.8s infinite;
+}
+.pin span {
+  background: #e0245e; color: #fff; font-size: 11px; font-weight: 700;
+  padding: 2px 6px; border-radius: 8px; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+@keyframes pulse { 70% { box-shadow: 0 0 0 12px rgba(224, 36, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(224, 36, 94, 0); } }
+@media (prefers-reduced-motion: reduce) { .pin i { animation: none; } }
+.mapbox { position: relative; }
+.expand {
+  position: absolute; top: 8px; right: 8px; font: inherit; font-size: 13px; font-weight: 600;
+  padding: 6px 10px; border-radius: 10px; border: 0; background: rgba(20, 32, 46, .85); color: #fff; cursor: pointer;
+}
+.zoom { position: fixed; inset: 0; z-index: 10; background: #1b1f24; display: flex; flex-direction: column; }
+.zoombar {
+  display: flex; align-items: center; gap: 8px; color: #fff;
+  padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
+}
+.zoombar span { flex: 1; font-weight: 600; }
+.zoombar button {
+  width: 44px; height: 44px; border-radius: 12px; border: 0; background: #2d343c; color: #fff;
+  font-size: 22px; line-height: 1; cursor: pointer;
+}
+.stage { flex: 1; overflow: hidden; touch-action: none; position: relative; background: #e6e7e9; }
+.zframe { position: absolute; left: 0; top: 0; }
+.zframe img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
+body.locked { overflow: hidden; }
+.saved {
+  display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 10px 12px;
+}
+.saved a { color: var(--ink); text-decoration: none; min-width: 0; }
+.saved a b, .saved a span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saved a span { font-size: 13px; }
+.field {
+  width: 100%; font: inherit; font-size: 18px; padding: 12px 14px; border-radius: 12px;
+  border: 2px solid var(--line); background: var(--card); color: var(--ink);
+}
+.field:focus { outline: none; border-color: var(--accent); }
+.saved input {
+  flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+}
+.mini {
+  flex: none; font: inherit; font-size: 14px; font-weight: 600; padding: 8px 12px; border-radius: 10px;
+  border: 0; background: var(--accent); color: #fff; cursor: pointer;
+}
+.mini.ghost { background: var(--bg); color: var(--ink); border: 1px solid var(--line); }
+.card.live { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22, 163, 74, .25), 0 0 18px rgba(22, 163, 74, .35); }
+.card.upnext { border-color: var(--accent); border-style: dashed; }
+.card.past { opacity: .5; }
+.nowtag { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .03em; margin-bottom: 4px; }
+.live .nowtag { color: #16a34a; }
+.upnext .nowtag { color: var(--accent); }
+.showmap {
+  margin-left: auto; font: inherit; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 8px;
+  border: 0; background: var(--accent); color: #fff; cursor: pointer;
+}
+.pin.focus { z-index: 2; }
+.pin.focus i { background: var(--accent); width: 24px; height: 24px; left: -12px; top: -12px; animation: pulseblue 1.4s infinite; }
+.pin.focus span { background: var(--accent); left: 14px; top: -11px; font-size: 12px; }
+@keyframes pulseblue { 70% { box-shadow: 0 0 0 16px rgba(11, 111, 203, 0); } 0% { box-shadow: 0 0 0 0 rgba(11, 111, 203, .6); } }
+.nowtag i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.live .nowtag i { animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .live .nowtag i { animation: none; } }
+.banner {
+  background: var(--warn-soft); color: var(--warn); border-radius: 12px;
+  padding: 10px 12px; margin-bottom: 12px; font-size: 15px;
+}
+nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; background: var(--bg);
+  border-top: 1px solid var(--line); display: flex; gap: 10px;
+  padding: 10px 16px calc(env(safe-area-inset-bottom) + 10px);
+}
+nav button, .btn {
+  flex: 1; font: inherit; font-weight: 600; border-radius: 12px; padding: 14px; border: 0;
+  background: var(--accent); color: #fff; cursor: pointer; text-align: center; text-decoration: none; display: block; width: 100%;
+}
+nav button.ghost, .btn.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+nav button:disabled { opacity: .4; }
+.stack > * + * { margin-top: 10px; }
+.slotlabel { font-size: 13px; font-weight: 600; color: var(--muted); margin: 16px 0 6px; text-transform: uppercase; letter-spacing: .04em; }
+.free { color: var(--muted); font-style: italic; }
+.link {
+  font: 15px ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: 10px; word-break: break-all; user-select: all;
+}
+.muted { color: var(--muted); }
+.err { color: #c0392b; }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow"><span id="eyebrow"></span><span id="step"></span></div>
+  <h1 id="heading">Loading…</h1>
+  <div class="bar" id="bar" hidden><i id="barfill"></i></div>
+</header>
+<main id="main"></main>
+<div class="zoom" id="zoom" hidden>
+  <div class="zoombar">
+    <span id="zoomtitle"></span>
+    <button type="button" id="zoomout" aria-label="Zoom out">−</button>
+    <button type="button" id="zoomin" aria-label="Zoom in">+</button>
+    <button type="button" id="zoomclose" aria-label="Close">✕</button>
+  </div>
+  <div class="stage" id="stage"><div class="zframe" id="zframe"></div></div>
+</div>
+<nav id="nav" hidden>
+  <button class="ghost" id="back">Back</button>
+  <button id="next">Next</button>
+</nav>
+<script>
+// The app may live under a path prefix (e.g. behind a reverse proxy), so derive the
+// base from the URL: /<prefix>/ for the builder, /<prefix>/a/<id> for a saved agenda.
+const VIEW_ID = (location.pathname.match(/\/a\/([A-Za-z0-9_-]{8})\/?$/) || [])[1];
+const BASE = location.pathname.replace(/a\/[^/]*\/?$/, '').replace(/[^/]*$/, '');
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+
+let S = {}, SLOTS = [], PICKS = {}, ROOMS = {}, EVENT = {}, MAPS = [];
+// localStorage keys are per event, so two events on one phone don't mix drafts.
+const key = (k) => `agenda:${EVENT.id}:${k}`;
+let choices = {};
+let step = 0;               // 0 = intro, 1 = agenda name, 2..SLOTS.length+1 = slots, SLOTS.length+2 = review
+const PRE = 2;              // SLOTS[step - PRE] is the slot on screen
+let draftName = '';
+const open = new Set();     // expanded session ids
+
+function fmt(t) {
+  let [h, m] = t.split(':').map(Number);
+  const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+  return `${h}:${String(m).padStart(2, '0')} ${ap}`;
+}
+const shortTitle = (t) => t.replace(/^(Hands-?on\s+)?(Lab|Workshop):?\s*/i, '');
+// Hands-on sessions get their own colour. Set "lab": true on a session, or call it "Lab"/"Workshop".
+const isLab = (s) => s.lab ?? /\b(lab|workshop)\b/i.test(s.title);
+
+// Labs chosen in an earlier slot that are still running when `slot` starts.
+function runningLabs(slot, ch) {
+  const start = Math.min(...slot.options.map((i) => S[i].start.replace(':', '')));
+  return SLOTS.filter((o) => o !== slot && o.options)
+    .map((o) => ch[o.id]).filter((id) => id && id !== 'skip' && S[id])
+    .filter((id) => +S[id].start.replace(':', '') < start && start < +S[id].end.replace(':', ''));
+}
+// Slots a session runs into (used to warn on lab cards).
+function overlappedSlots(id) {
+  const s = S[id];
+  return SLOTS.filter((o) => o.options && !o.options.includes(id)).filter((o) => {
+    const st = Math.min(...o.options.map((i) => +S[i].start.replace(':', '')));
+    return +s.start.replace(':', '') < st && st < +s.end.replace(':', '');
+  });
+}
+
+// Floor plans from event.json "maps" (optional). Saved-agenda page only.
+let mapLevel = null;        // id of the map on screen
+const mapById = (id) => MAPS.find((m) => m.id === id);
+function roomHtml(room) {
+  const pin = ROOMS[room];
+  return VIEW_ID && pin ? `<a class="roomlink" href="#map" data-level="${esc(pin.map)}">${esc(room)}</a>` : esc(room);
+}
+// All floors render once; tabs only toggle visibility. Re-rendering swapped the
+// <img>, which collapsed to 0px while loading and made the page jump.
+// Your rooms: room -> start times of your sessions there (a room can host several).
+function myRooms(ch) {
+  const out = {};
+  for (const id of agendaIds(ch)) (out[S[id].room] ||= []).push(fmt(S[id].start).replace(/ [AP]M$/, ''));
+  return out;
+}
+function mapHtml(ch) {
+  if (!MAPS.length) return '';
+  const mine = myRooms(ch);
+  // Open on the floor of your first pinned room, else the first map.
+  if (mapLevel === null) mapLevel = (ROOMS[Object.keys(mine).find((r) => ROOMS[r])] || {}).map || MAPS[0].id;
+  const pins = (id) => Object.entries(mine).filter(([r]) => ROOMS[r]?.map === id).map(([r, times]) =>
+    `<div class="pin" data-room="${esc(r)}" style="left:${ROOMS[r].x}%;top:${ROOMS[r].y}%"><i></i><span>${esc(times.join(' · '))}</span></div>`).join('');
+  const tallest = Math.max(...MAPS.map((m) => m.height / m.width));
+  const source = EVENT.map_source;
+  return `<div class="slotlabel" id="map">Venue map${EVENT.venue ? ' · ' + esc(EVENT.venue) : ''}</div>
+    <div class="maprow">
+    ${MAPS.length > 1 ? `<div class="tabs">${MAPS.map((m) =>
+      `<button type="button" class="tab ${m.id === mapLevel ? 'on' : ''}" data-level="${esc(m.id)}" aria-label="${esc(m.description)}">
+        <b>${esc(m.name)}</b>${m.short ? `<small>${esc(m.short)}</small>` : ''}</button>`).join('')}</div>` : ''}
+    <div class="mapbox" style="aspect-ratio:1 / ${tallest}">${MAPS.map((m) => {
+      // src carries ?v=<file time> so caches (e.g. a CDN) pick up a changed image.
+      return `<div class="mapimg" data-map="${esc(m.id)}" ${m.id === mapLevel ? '' : 'hidden'}>
+        <div class="frame" style="aspect-ratio:${m.width} / ${m.height}">
+        <img src="${BASE}${esc(m.src)}" width="${m.width}" height="${m.height}" alt="Floor plan: ${esc(m.description)}" draggable="false">${pins(m.id)}</div></div>`;
+    }).join('')}<button type="button" class="expand" id="expand" aria-label="Expand map">⤢ Expand</button></div>
+    </div>
+    <p class="muted" style="font-size:13px">Pins mark your rooms, labelled with your session times. Tap <b>Expand</b> to view full screen and pinch to zoom.${
+      source && source.url ? ` Source: <a href="${esc(source.url)}" target="_blank" rel="noopener">${esc(source.label || source.url)}</a>.` : ''}</p>`;
+}
+function showLevel(l) {
+  mapLevel = l;
+  document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('on', t.dataset.level === l));
+  document.querySelectorAll('.mapimg').forEach((m) => { m.hidden = m.dataset.map !== l; });
+}
+
+const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+
+function speakersLine(s) {
+  if (!s.speakers.length) return '';
+  return s.speakers.map((p) => p.name + (p.org ? ` (${p.org})` : '')).join(', ');
+}
+
+function card(id, { selectable = false, selected = false, prefix = '', warnings = true } = {}) {
+  const s = S[id];
+  // Only once chosen: the warning is about the consequence of this pick.
+  const warn = selectable && selected && warnings ? overlappedSlots(id).map((o) =>
+    `<div class="note">Runs until ${fmt(s.end)}. You'd miss these ${o.label} sessions (you can leave early on the next screen):
+      ${o.options.map(missedCard).join('')}</div>`).join('') : '';
+  const expanded = open.has(id);
+  const hasDetails = s.description || s.speakers.length || PICKS[id];
+  const lab = isLab(s);
+  return `<div class="card ${selectable ? '' : 'fixed'} ${selected ? 'sel' : ''} ${lab ? 'lab' : ''}" data-id="${id}">
+    <div class="row">
+      ${selectable ? '<div class="radio"></div>' : ''}
+      <div class="grow">
+        ${lab ? `<div class="labtag">HANDS-ON LAB · ${Math.round((toMin(s.end) - toMin(s.start)))} MIN</div>` : ''}
+        ${PICKS[id] ? '<div class="badge">★ Suggested</div>' : ''}
+        <div class="title">${prefix}${esc(prefix ? shortTitle(s.title) : s.title)}</div>
+        <div class="meta">${fmt(s.start)}–${fmt(s.end)} · ${roomHtml(s.room)}</div>
+        ${s.speakers.length ? `<div class="meta">${esc(speakersLine(s))}</div>` : ''}
+        ${hasDetails ? `<button class="more" data-toggle="${id}">${expanded ? 'Hide details ▲' : 'Details ▼'}</button>` : ''}
+        ${expanded ? `<div class="details">
+          ${PICKS[id] ? `<p class="why"><b>Why it's suggested:</b> ${esc(PICKS[id])}</p>` : ''}
+          ${s.description ? `<p>${esc(s.description)}</p>` : '<p class="muted">No description published.</p>'}
+          ${s.speakers.map((p) => `<div class="speaker"><b>${esc(p.name)}</b>${p.role ? ', ' + esc(p.role) : ''}${p.org ? ' · ' + esc(p.org) : ''}</div>`).join('')}
+        </div>` : ''}
+        ${warn}
+      </div>
+      ${ext(s)}
+    </div>
+  </div>`;
+}
+
+// A session you'd miss by staying in a lab: its own expandable bubble. Tapping it still picks the lab.
+function missedCard(id) {
+  const s = S[id], expanded = open.has('m' + id);
+  return `<div class="missed">
+    <div class="row"><div class="grow">
+    ${PICKS[id] ? '<div class="badge">★ Suggested</div>' : ''}
+    <div class="title">${esc(s.title)}</div></div>${ext(s)}</div>
+    <div class="meta">${fmt(s.start)}–${fmt(s.end)} · ${esc(s.room)}${s.speakers.length ? ' · ' + esc(speakersLine(s)) : ''}</div>
+    <button class="more" data-toggle="m${id}">${expanded ? 'Hide details ▲' : 'Details ▼'}</button>
+    ${expanded ? `<div class="details">
+      ${PICKS[id] ? `<p class="why"><b>Why it's suggested:</b> ${esc(PICKS[id])}</p>` : ''}
+      ${s.description ? `<p>${esc(s.description)}</p>` : '<p class="muted">No description published.</p>'}
+    </div>` : ''}
+  </div>`;
+}
+
+// Opens the session on the official agenda. Tapping it never selects the card.
+function ext(s) {
+  return s.url ? `<a class="ext" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(EVENT.link_label)}" title="${esc(EVENT.link_label)}">↗</a>` : '';
+}
+
+function skipCard(selected) {
+  return `<div class="card ${selected ? 'sel' : ''}" data-id="skip"><div class="row"><div class="radio"></div>
+    <div class="grow"><div class="title">Skip / free time</div><div class="meta">${esc(EVENT.skip_note)}</div></div></div></div>`;
+}
+
+function header(title, eyebrowRight = '') {
+  $('heading').textContent = title;
+  $('step').textContent = eyebrowRight;
+}
+
+function render() {
+  window.scrollTo(0, 0);
+  if (VIEW_ID) return renderView();
+  const N = SLOTS.length;
+  $('nav').hidden = step === 0;
+  $('bar').hidden = step === 0;
+  $('barfill').style.width = `${(step / (N + 2)) * 100}%`;
+  $('back').textContent = 'Back';
+  $('next').textContent = 'Next';
+  $('next').disabled = false;
+  if (step === 0) return renderIntro();
+  if (step === 1) return renderName();
+  if (step === N + PRE) return renderReview();
+  const slot = SLOTS[step - PRE];
+  header(slot.label, `${step} / ${N + 1}`);
+  let html = '';
+  if (slot.fixed) {
+    html = slot.fixed.map((id) => card(id)).join('');
+  } else {
+    const labs = runningLabs(slot, choices);
+    if (labs.length && !(slot.id in choices)) choices[slot.id] = labs[0];
+    const ch = choices[slot.id];
+    html += labs.map((id) => `<div class="banner">You're in <b>${esc(shortTitle(S[id].title))}</b> until ${fmt(S[id].end)}. Stay, or leave for one of these.</div>`).join('');
+    html += labs.map((id) => card(id, { selectable: true, selected: ch === id, prefix: 'Stay: ', warnings: false })).join('');
+    html += slot.options.map((id) => card(id, { selectable: true, selected: ch === id })).join('');
+    html += skipCard(ch === 'skip');
+  }
+  $('main').innerHTML = html;
+}
+
+// Saved agendas live in this phone's storage; the alias is a local label only —
+// the link (id) never changes.
+let editingAlias = null;
+const savedAt = (a) => new Date(a.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const aliasOf = (id) => (store.get(key('saved'), []).find((a) => a.id === id) || {}).name;
+function savedRow(a) {
+  if (editingAlias === a.id) {
+    return `<form class="saved editing" data-alias-form="${a.id}">
+      <input id="aliasinput" maxlength="40" value="${esc(a.name || '')}" placeholder="e.g. Sam" aria-label="Agenda name">
+      <button class="mini" type="submit">Save</button>
+      <button class="mini ghost" type="button" data-alias-cancel>Cancel</button>
+    </form>`;
+  }
+  return `<div class="saved">
+    <a class="grow" href="${BASE}a/${a.id}"><b>${esc(a.name || 'Untitled agenda')}</b>
+      <span class="muted">${esc(a.id)} · saved ${savedAt(a)}</span></a>
+    <button class="mini ghost" type="button" data-alias-edit="${a.id}">Edit name</button>
+  </div>`;
+}
+// "Sam" -> "Sam's Agenda", "James" -> "James' Agenda"; no alias -> "My agenda".
+function agendaTitle(name) {
+  if (!name) return 'My agenda';
+  return `${name}${/s$/i.test(name) ? "'" : "'s"} Agenda`;
+}
+function setAlias(id, name) {
+  store.set(key('saved'), store.get(key('saved'), []).map((a) => (a.id === id ? { ...a, name: name.trim() || undefined } : a)));
+}
+
+function renderName() {
+  header('Agenda name', `1 / ${SLOTS.length + 1}`);
+  $('main').innerHTML = `<form class="stack" id="nameform">
+    <label for="agendaname" class="title">Agenda name</label>
+    <input class="field" id="agendaname" maxlength="40" value="${esc(draftName)}" placeholder="e.g. Sam" autocomplete="given-name">
+    <p class="muted" id="namepreview"></p>
+    <p class="muted" style="font-size:13px">Optional. Stored on this phone only, so people you share the link with see "My agenda". You can change it later without changing the link.</p>
+  </form>`;
+  const preview = () => { $('namepreview').innerHTML = `Your agenda will be called <b>${esc(agendaTitle(draftName.trim()))}</b>.`; };
+  preview();
+  $('agendaname').oninput = (e) => { draftName = e.target.value; store.set(key('draft-name'), draftName); preview(); };
+  $('nameform').onsubmit = (e) => { e.preventDefault(); step++; render(); };
+}
+
+function renderIntro() {
+  header('Build your agenda');
+  const saved = store.get(key('saved'), []);
+  $('main').innerHTML = `<div class="stack">
+    <p>${esc(EVENT.intro)}</p>
+    <p class="muted">Tap a session to choose it. Tap <b>Details</b> for the description and speakers.${Object.keys(PICKS).length ? ' ★ marks suggested sessions.' : ''}</p>
+    <button class="btn" id="start">${Object.keys(choices).length ? 'Continue' : 'Start'}</button>
+    ${Object.keys(choices).length ? '<button class="btn ghost" id="reset">Start over</button>' : ''}
+    ${saved.length ? `<div class="slotlabel">Your saved agendas</div>` + saved.map(savedRow).join('') : ''}
+  </div>`;
+  $('start').onclick = () => { step = 1; render(); };
+  if ($('reset')) $('reset').onclick = () => {
+    choices = {}; store.set(key('draft'), choices);
+    draftName = ''; store.set(key('draft-name'), draftName);
+    step = 1; render();
+  };
+}
+
+// Every session on an agenda, in order: fixed items plus choices (skips dropped).
+function agendaIds(ch) {
+  return SLOTS.flatMap((s) => s.fixed || [ch[s.id]]).filter((id) => id && id !== 'skip' && S[id]);
+}
+
+function timeline(ch) {
+  return SLOTS.map((slot) => {
+    let body;
+    if (slot.fixed) body = slot.fixed.map((id) => card(id)).join('');
+    else {
+      const id = ch[slot.id];
+      const stay = id && slot.options && !slot.options.includes(id) && id !== 'skip';
+      body = !id || id === 'skip' ? '<div class="card fixed free">Free time</div>'
+        : card(id, { prefix: stay ? 'Continuing: ' : '' });
+    }
+    return `<div class="slotlabel">${slot.label}</div>${body}`;
+  }).join('');
+}
+
+function renderReview() {
+  header('Review', 'Almost done');
+  $('back').textContent = 'Back';
+  $('next').textContent = 'Save & get link';
+  $('main').innerHTML = timeline(choices) + '<p class="err" id="err"></p>';
+}
+
+async function saveAgenda() {
+  const full = {};
+  for (const s of SLOTS) if (s.options) full[s.id] = choices[s.id] || 'skip';
+  $('next').disabled = true;
+  try {
+    const r = await fetch(`${BASE}api/agendas`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ choices: full }),
+    });
+    if (!r.ok) throw new Error((await r.json()).detail || r.status);
+    const { id } = await r.json();
+    store.set(key('saved'), [{ id, at: Date.now(), name: draftName.trim() || undefined }, ...store.get(key('saved'), [])].slice(0, 10));
+    location.href = `${BASE}a/${id}`;
+  } catch (e) {
+    $('err').textContent = `Couldn't save: ${e.message}. Try again.`;
+    $('next').disabled = false;
+  }
+}
+
+// "Where should I be?" on the saved agenda: glow the live session, tag the next one,
+// dim finished ones. Event's own timezone, event day only (event.json "date"; no
+// date = no indicator). ?now=11:20 pretends it's 11:20 on the event day, for testing.
+function eventNow() {
+  const o = new URLSearchParams(location.search).get('now');
+  if (o && /^\d{1,2}:\d{2}$/.test(o)) return { date: EVENT.date, min: toMin(o) };
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: EVENT.timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date()).map((x) => [x.type, x.value]));
+  return { date: `${p.year}-${p.month}-${p.day}`, min: +p.hour * 60 + +p.minute };
+}
+function markNow() {
+  if (!EVENT.date) return;
+  const { date, min } = eventNow();
+  const seen = new Set();
+  let next = null;
+  document.querySelectorAll('.nowtag').forEach((t) => t.remove());
+  document.querySelectorAll('#main .card[data-id]').forEach((c) => {
+    c.classList.remove('live', 'upnext', 'past');
+    const s = S[c.dataset.id];
+    if (date !== EVENT.date || !s || seen.has(s.id)) return;    // a lab shown twice: mark its first card
+    seen.add(s.id);
+    const st = toMin(s.start), en = toMin(s.end);
+    if (en - st > 180) return;                                   // all-day items (registration) never "live"
+    if (min >= en) c.classList.add('past');
+    else if (min >= st) tag(c, 'live', `NOW · until ${fmt(s.end)}`);
+    else if (!next || st < toMin(S[next.dataset.id].start)) next = c;
+  });
+  if (next) {
+    const mins = toMin(S[next.dataset.id].start) - min;
+    tag(next, 'upnext', `UP NEXT · ${mins <= 1 ? 'starting now' : mins < 60 ? `in ${mins} min` : `at ${fmt(S[next.dataset.id].start)}`}`);
+    if (ROOMS[S[next.dataset.id].room] && mapById(ROOMS[S[next.dataset.id].room].map)) next.querySelector('.nowtag').insertAdjacentHTML('beforeend',
+      `<button type="button" class="showmap" data-showmap="${next.dataset.id}">Show on map</button>`);
+  }
+  function tag(card, cls, text) {
+    card.classList.add(cls);
+    card.querySelector('.grow').insertAdjacentHTML('afterbegin', `<div class="nowtag"><i></i>${text}</div>`);
+  }
+}
+if (VIEW_ID) setInterval(markNow, 30000);
+// Switch to the session's floor, scroll to the map, and make its room's pin stand out.
+function showOnMap(id) {
+  const room = S[id].room;
+  showLevel(ROOMS[room].map);
+  document.querySelectorAll('.pin.focus').forEach((p) => p.classList.remove('focus'));
+  document.querySelectorAll(`.mapimg[data-map="${CSS.escape(ROOMS[room].map)}"] .pin`).forEach((p) => {
+    if (p.dataset.room === room) p.classList.add('focus');
+  });
+  $('map').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function renderView() {
+  header(agendaTitle(aliasOf(VIEW_ID)), '');
+  $('nav').hidden = true;
+  if (!renderView.data) {
+    const r = await fetch(`${BASE}api/agendas/${VIEW_ID}`);
+    if (!r.ok) { $('main').innerHTML = `<p>No agenda at this link.</p><a class="btn" href="${BASE}">Build one</a>`; return; }
+    renderView.data = await r.json();
+  }
+  if (renderView.data.event && renderView.data.event !== EVENT.id) {
+    $('main').innerHTML = `<p>This agenda was made for a different event than the one this site now shows.</p><a class="btn" href="${BASE}">Build a new one</a>`;
+    return;
+  }
+  const url = location.href.split('#')[0];
+  $('main').innerHTML = `<div class="stack">
+      <div class="link">${esc(url)}</div>
+      <button class="btn" id="share">${navigator.share ? 'Share link' : 'Copy link'}</button>
+    </div>
+    ${timeline(renderView.data.choices)}
+    <div id="mapwrap">${mapHtml(renderView.data.choices)}</div>
+    <div class="stack" style="margin-top:16px">
+      <button class="btn ghost" id="edit">Edit a copy</button>
+      <a class="btn ghost" href="${BASE}">Build a new agenda</a>
+    </div>`;
+  $('share').onclick = async () => {
+    try {
+      if (navigator.share) await navigator.share({ title: `${agendaTitle(aliasOf(VIEW_ID))} · ${EVENT.name}`, url });
+      else { await navigator.clipboard.writeText(url); $('share').textContent = 'Copied'; }
+    } catch {}
+  };
+  markNow();
+  if (!renderView.scrolled) {                 // first open during the event: jump to what's on
+    renderView.scrolled = true;
+    const target = document.querySelector('.card.live, .card.upnext');
+    if (target) target.scrollIntoView({ block: 'center' });
+  }
+  $('edit').onclick = () => {
+    store.set(key('draft'), renderView.data.choices);
+    store.set(key('draft-name'), aliasOf(VIEW_ID) || '');
+    location.href = `${BASE}#review`;
+  };
+}
+
+// Full-screen map: pinch/drag/wheel/double-tap zoom. Zoom resizes the frame (not a CSS
+// scale, which blurs: the browser scales a 1x raster), so the plan stays sharp and pins
+// keep their size. Pan is a translate.
+const Z = { s: 1, x: 0, y: 0, min: 1, base: 0, pts: new Map(), last: null };
+function zApply() {
+  const f = $('zframe');
+  f.style.width = `${Z.base * Z.s}px`;
+  f.style.transform = `translate(${Z.x}px, ${Z.y}px)`;
+}
+function zClamp() {
+  const st = $('stage').getBoundingClientRect();
+  const { width: iw, height: ih } = mapById(mapLevel);
+  const w = Z.base * Z.s, h = w * ih / iw;
+  Z.x = w <= st.width ? (st.width - w) / 2 : Math.min(0, Math.max(st.width - w, Z.x));
+  Z.y = h <= st.height ? (st.height - h) / 2 : Math.min(0, Math.max(st.height - h, Z.y));
+}
+function zZoomAt(factor, cx, cy) {
+  const s = Math.min(Z.min * 6, Math.max(Z.min, Z.s * factor));
+  Z.x = cx - (cx - Z.x) * (s / Z.s); Z.y = cy - (cy - Z.y) * (s / Z.s); Z.s = s;
+  zClamp(); zApply();
+}
+function openZoom() {
+  const src = document.querySelector(`.mapimg[data-map="${CSS.escape(mapLevel)}"] .frame`);
+  const f = $('zframe');
+  f.innerHTML = src.innerHTML;
+  const { width: w, height: h, name } = mapById(mapLevel);
+  $('zoomtitle').textContent = name;
+  $('zoom').hidden = false; document.body.classList.add('locked');
+  const st = $('stage').getBoundingClientRect();
+  Z.base = st.width;                                        // 1x = fit width
+  Z.min = Math.min(1, st.height / (st.width * h / w));      // or fit height if taller
+  Z.s = Z.min; Z.x = 0; Z.y = 0; zClamp(); zApply();
+}
+function closeZoom() { $('zoom').hidden = true; document.body.classList.remove('locked'); Z.pts.clear(); }
+(function wireZoom() {
+  const st = $('stage');
+  const local = (e) => { const r = st.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  st.addEventListener('pointerdown', (e) => { st.setPointerCapture(e.pointerId); Z.pts.set(e.pointerId, local(e)); Z.last = null; });
+  st.addEventListener('pointermove', (e) => {
+    if (!Z.pts.has(e.pointerId)) return;
+    const prev = Z.pts.get(e.pointerId), cur = local(e);
+    Z.pts.set(e.pointerId, cur);
+    if (Z.pts.size === 1) { Z.x += cur[0] - prev[0]; Z.y += cur[1] - prev[1]; zClamp(); zApply(); return; }
+    const [a, b] = [...Z.pts.values()];
+    const d = Math.hypot(a[0] - b[0], a[1] - b[1]), mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    if (Z.last) { Z.x += mid[0] - Z.last.mid[0]; Z.y += mid[1] - Z.last.mid[1]; zZoomAt(d / Z.last.d, mid[0], mid[1]); }
+    Z.last = { d, mid };
+  });
+  const up = (e) => { Z.pts.delete(e.pointerId); Z.last = null; };
+  st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+  st.addEventListener('wheel', (e) => { e.preventDefault(); const [x, y] = local(e); zZoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, x, y); }, { passive: false });
+  st.addEventListener('dblclick', (e) => { const [x, y] = local(e); zZoomAt(Z.s > Z.min * 1.5 ? Z.min / Z.s : 2.5, x, y); });
+  const centre = () => { const r = st.getBoundingClientRect(); return [r.width / 2, r.height / 2]; };
+  $('zoomin').onclick = () => zZoomAt(1.5, ...centre());
+  $('zoomout').onclick = () => zZoomAt(1 / 1.5, ...centre());
+  $('zoomclose').onclick = closeZoom;
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('zoom').hidden) closeZoom(); });
+})();
+
+document.addEventListener('submit', (e) => {
+  const f = e.target.closest('[data-alias-form]');
+  if (!f) return;
+  e.preventDefault();
+  setAlias(f.dataset.aliasForm, $('aliasinput').value);
+  editingAlias = null; renderIntro();
+});
+
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#expand')) return openZoom();
+  const sm = e.target.closest('[data-showmap]');
+  if (sm) return showOnMap(sm.dataset.showmap);
+  const ed = e.target.closest('[data-alias-edit]');
+  if (ed) { editingAlias = ed.dataset.aliasEdit; renderIntro(); $('aliasinput').focus(); $('aliasinput').select(); return; }
+  if (e.target.closest('[data-alias-cancel]')) { editingAlias = null; renderIntro(); return; }
+  const lv = e.target.closest('[data-level]');
+  if (lv) {
+    e.preventDefault();
+    showLevel(lv.dataset.level);
+    if (lv.classList.contains('roomlink')) $('map').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (e.target.closest('a.ext')) return;
+  const t = e.target.closest('[data-toggle]');
+  if (t) { const id = t.dataset.toggle; open.has(id) ? open.delete(id) : open.add(id); const y = scrollY; render(); scrollTo(0, y); return; }
+  const c = e.target.closest('.card[data-id]:not(.fixed)');
+  if (c && !VIEW_ID && step >= PRE && step < SLOTS.length + PRE) {
+    const slot = SLOTS[step - PRE];
+    choices[slot.id] = c.dataset.id;
+    // A lab choice changed: forget "stay in lab" answers that no longer apply.
+    for (const o of SLOTS) if (o.options && choices[o.id] && !o.options.includes(choices[o.id]) && choices[o.id] !== 'skip'
+      && !runningLabs(o, choices).includes(choices[o.id])) delete choices[o.id];
+    store.set(key('draft'), choices);
+    const y = scrollY; render(); scrollTo(0, y);
+  }
+});
+$('back').onclick = () => { step = Math.max(0, step - 1); render(); };
+$('next').onclick = () => {
+  if (VIEW_ID) return;
+  if (step === SLOTS.length + PRE) return saveAgenda();
+  const slot = SLOTS[step - PRE];
+  if (slot && slot.options && !(slot.id in choices)) { choices[slot.id] = 'skip'; store.set(key('draft'), choices); }
+  step++; render();
+};
+
+fetch(`${BASE}api/data`).then((r) => r.json()).then((d) => {
+  for (const s of d.sessions) S[s.id] = s;
+  SLOTS = d.slots; PICKS = d.picks || {}; ROOMS = d.rooms || {}; EVENT = d.event; MAPS = EVENT.maps || [];
+  choices = store.get(key('draft'), {});
+  draftName = store.get(key('draft-name'), '');
+  document.title = `${EVENT.name} · Agenda`;
+  $('eyebrow').textContent = [EVENT.name, EVENT.subtitle].filter(Boolean).join(' · ');
+  if (location.hash === '#review') { step = SLOTS.length + PRE; history.replaceState(null, '', BASE); }
+  render();
+}).catch(() => { $('main').innerHTML = '<p class="err">Couldn\'t load the agenda. Refresh to retry.</p>'; });
+</script>
+</body>
+</html>

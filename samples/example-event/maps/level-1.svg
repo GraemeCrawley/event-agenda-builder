@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700" font-family="Helvetica, Arial, sans-serif">
+  <!-- Fictional floor plan for the sample event. Replace with your venue's map. -->
+  <rect width="1000" height="700" fill="#f2f2ef"/>
+  <rect x="40" y="40" width="920" height="620" rx="12" fill="#fff" stroke="#8a8f98" stroke-width="6"/>
+  <rect x="340" y="80" width="580" height="420" rx="8" fill="#e8eef7" stroke="#8a8f98" stroke-width="3"/>
+  <text x="630" y="300" font-size="44" font-weight="700" fill="#43506a" text-anchor="middle">Hall A</text>
+  <rect x="80" y="380" width="220" height="240" rx="8" fill="#f6efe2" stroke="#8a8f98" stroke-width="3"/>
+  <text x="190" y="560" font-size="32" font-weight="700" fill="#6a5a43" text-anchor="middle">Lobby</text>
+  <rect x="80" y="80" width="220" height="140" rx="8" fill="#eef2ee" stroke="#8a8f98" stroke-width="3"/>
+  <text x="190" y="160" font-size="26" fill="#4d5d4d" text-anchor="middle">Stairs / lifts</text>
+  <rect x="340" y="540" width="270" height="80" rx="8" fill="#eef2ee" stroke="#8a8f98" stroke-width="3"/>
+  <text x="475" y="590" font-size="24" fill="#4d5d4d" text-anchor="middle">Toilets</text>
+  <rect x="650" y="540" width="270" height="80" rx="8" fill="#eef2ee" stroke="#8a8f98" stroke-width="3"/>
+  <text x="785" y="590" font-size="24" fill="#4d5d4d" text-anchor="middle">Cloakroom</text>
+  <rect x="150" y="655" width="80" height="10" fill="#fff"/>
+  <text x="190" y="690" font-size="20" fill="#5d6b7c" text-anchor="middle">Main entrance</text>
+</svg>

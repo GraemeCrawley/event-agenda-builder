@@ -1,0 +1,16 @@
+{
+ "id": "example-summit-2026",
+ "name": "Example Tech Summit",
+ "subtitle": "Riverside Example Centre · Thu Jun 18",
+ "date": "2026-06-18",
+ "timezone": "America/New_York",
+ "venue": "Riverside Example Centre",
+ "intro": "A made-up one-day conference to show how Agenda Builder works. Pick one session per time slot, then save to get a link you can reopen or share.",
+ "skip_note": "Expo hall, meetings, coffee.",
+ "link_label": "Open on the event website",
+ "maps": [
+  {"id": "1", "name": "Level 1", "short": "Halls", "description": "Level 1: lobby and Hall A", "image": "level-1.svg", "width": 1000, "height": 700},
+  {"id": "2", "name": "Level 2", "short": "Rooms", "description": "Level 2: rooms 201 to 204", "image": "level-2.svg", "width": 1000, "height": 700}
+ ],
+ "map_source": {"label": "Drawn for this sample", "url": ""}
+}

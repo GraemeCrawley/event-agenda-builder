@@ -1,0 +1,28 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Saved agendas and your own event folders: keep them out of git
+data/
+events/*
+!events/.gitkeep
+
+# Scraped or downloaded source material (raw HTML, PDFs, screenshots)
+raw/
+*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Tool junk
+.playwright-mcp/
+.DS_Store
+._*
+
+# Local agent notes
+.claude/
