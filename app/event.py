@@ -135,6 +135,17 @@ def load_event(folder: str | Path) -> dict:
     event.setdefault("skip_note", "Free time, meetings, coffee.")
     event.setdefault("link_label", "Open on the official agenda")
     event.setdefault("maps", [])
+    # links: a few related pages shown under the title, e.g. the other days of a
+    # multi-day event (one instance per day). Relative URLs like "../day2/" work.
+    links = event.setdefault("links", [])
+    if not isinstance(links, list):
+        raise EventError("event.json: links must be a list of {\"label\", \"url\"}")
+    for link in links:
+        if not isinstance(link, dict) or not link.get("label") or not link.get("url"):
+            raise EventError(f"event.json: every link needs \"label\" and \"url\" ({link})")
+        if not re.match(r"^(https?://|\.{0,2}/|[A-Za-z0-9_.-]+/?$)", str(link["url"])):
+            raise EventError(f"event.json: link url must be http(s) or a relative path (got {link['url']!r})")
+        link.setdefault("current", False)
 
     # maps: each listed image must exist; give the page a cache-busting URL.
     map_ids = set()
