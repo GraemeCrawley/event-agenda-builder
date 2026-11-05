@@ -5,6 +5,7 @@ A phone-friendly page for building your own schedule at a conference or event.
 - **One screen per time slot.** Pick a session (tap **Details** for the description and speakers) or skip.
 - **Save and share.** You get a short link like `http://…/a/Xy3kP9qL` to reopen on your phone or send to friends.
 - **Knows the time.** On the day of the event, the saved agenda highlights what's on **now** and what's **up next**.
+- **Change your mind on the day.** Under each slot of a saved agenda, open **Other sessions** to see what else is on, and tap **Swap to this**. You get a new link with the change; the old link stays as it was.
 - **Long sessions handled.** If you pick a 90-minute workshop, it warns you which talks you'd miss, and lets you leave early.
 - **Optional venue maps** with a pin on each of your rooms.
 - **Optional suggestions** (★) with a reason, if you want to recommend sessions to friends.
@@ -99,6 +100,7 @@ Open `events/my-conference/event.json` and change the values:
 - `id`: a short name with no spaces, e.g. `devfest-2026`. Saved agendas remember it.
 - `date`: the day of the event, written as **YYYY-MM-DD**. This turns on the "now / up next" highlights on that day.
 - `timezone`: where the event happens, as a Region/City name like `Europe/London` or `America/New_York` ([full list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), "TZ identifier" column).
+- `links` (optional): buttons under the title, e.g. `[{"label": "Day 2", "url": "../day2/"}]`. Useful for a multi-day event run as one page per day; add `"current": true` to this day's own button.
 - `maps`: leave as `[]` (empty) unless you add maps (see [Venue maps](#venue-maps-optional)).
 
 ---

@@ -33,6 +33,12 @@ header {
 }
 .eyebrow { font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
 h1 { font-size: 24px; margin: 2px 0 0; letter-spacing: -.01em; }
+.links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.links a, .links span {
+  font-size: 13px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line);
+  color: var(--ink); text-decoration: none;
+}
+.links span { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
 .bar { height: 3px; background: var(--line); border-radius: 2px; margin-top: 10px; overflow: hidden; }
 .bar > i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
 main { padding: 12px 16px calc(env(safe-area-inset-bottom) + 96px); max-width: 640px; margin: 0 auto; }
@@ -71,6 +77,21 @@ main { padding: 12px 16px calc(env(safe-area-inset-bottom) + 96px); max-width: 6
 .details p { margin: 6px 0; }
 .details .why { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; }
 .speaker { color: var(--muted); font-size: 14px; }
+.altbtn {
+  display: block; width: 100%; text-align: left; margin: -4px 0 10px; padding: 6px 4px;
+  background: none; border: 0; color: var(--accent); font: inherit; font-size: 14px; cursor: pointer;
+}
+.alts { margin: -4px 0 12px 12px; padding-left: 10px; border-left: 2px solid var(--line); }
+.alts .missed { margin-bottom: 8px; }
+.alts .actions { display: flex; gap: 12px; align-items: center; }
+.swap {
+  margin-top: 8px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--accent);
+  background: var(--card); color: var(--accent); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.swap:disabled { opacity: .5; }
+.swapnote { background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.swapnote a { color: var(--accent); }
+.slotlabel[data-slot] { scroll-margin-top: 120px; }  /* clear the sticky header */
 .missed {
   background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 10px;
   padding: 8px 10px; margin-top: 6px;
@@ -202,6 +223,7 @@ nav button:disabled { opacity: .4; }
 <header>
   <div class="eyebrow"><span id="eyebrow"></span><span id="step"></span></div>
   <h1 id="heading">Loading…</h1>
+  <div class="links" id="links" hidden></div>
   <div class="bar" id="bar" hidden><i id="barfill"></i></div>
 </header>
 <main id="main"></main>
@@ -333,7 +355,7 @@ function card(id, { selectable = false, selected = false, prefix = '', warnings 
         ${lab ? `<div class="labtag">HANDS-ON LAB · ${Math.round((toMin(s.end) - toMin(s.start)))} MIN</div>` : ''}
         ${PICKS[id] ? '<div class="badge">★ Suggested</div>' : ''}
         <div class="title">${prefix}${esc(prefix ? shortTitle(s.title) : s.title)}</div>
-        <div class="meta">${fmt(s.start)}–${fmt(s.end)} · ${roomHtml(s.room)}</div>
+        <div class="meta">${fmt(s.start)}–${fmt(s.end)}${s.room ? " · " + roomHtml(s.room) : ""}</div>
         ${s.speakers.length ? `<div class="meta">${esc(speakersLine(s))}</div>` : ''}
         ${hasDetails ? `<button class="more" data-toggle="${id}">${expanded ? 'Hide details ▲' : 'Details ▼'}</button>` : ''}
         ${expanded ? `<div class="details">
@@ -355,12 +377,41 @@ function missedCard(id) {
     <div class="row"><div class="grow">
     ${PICKS[id] ? '<div class="badge">★ Suggested</div>' : ''}
     <div class="title">${esc(s.title)}</div></div>${ext(s)}</div>
-    <div class="meta">${fmt(s.start)}–${fmt(s.end)} · ${esc(s.room)}${s.speakers.length ? ' · ' + esc(speakersLine(s)) : ''}</div>
+    <div class="meta">${fmt(s.start)}–${fmt(s.end)}${s.room ? " · " + esc(s.room) : ""}${s.speakers.length ? ' · ' + esc(speakersLine(s)) : ''}</div>
     <button class="more" data-toggle="m${id}">${expanded ? 'Hide details ▲' : 'Details ▼'}</button>
     ${expanded ? `<div class="details">
       ${PICKS[id] ? `<p class="why"><b>Why it's suggested:</b> ${esc(PICKS[id])}</p>` : ''}
       ${s.description ? `<p>${esc(s.description)}</p>` : '<p class="muted">No description published.</p>'}
     </div>` : ''}
+  </div>`;
+}
+
+// Saved agenda: the other sessions in a slot, collapsed under the chosen one.
+const altsOpen = new Set();   // slot ids with alternatives showing
+function altsHtml(slot, chosen) {
+  const others = slot.options.filter((id) => id !== chosen);
+  if (!others.length) return '';
+  const shown = altsOpen.has(slot.id);
+  const label = chosen && chosen !== 'skip' ? 'Other sessions' : 'Sessions';
+  return `<button type="button" class="altbtn" data-alts="${esc(slot.id)}" aria-expanded="${shown}">
+      ${label} at ${esc(slot.label)} (${others.length}) ${shown ? '▲' : '▼'}</button>
+    ${shown ? `<div class="alts">${others.map((id) => altCard(slot, id)).join('')}</div>` : ''}`;
+}
+function altCard(slot, id) {
+  const s = S[id], expanded = open.has('a' + id);
+  return `<div class="missed">
+    <div class="row"><div class="grow">
+    ${PICKS[id] ? '<div class="badge">★ Suggested</div>' : ''}
+    <div class="title">${esc(s.title)}</div></div>${ext(s)}</div>
+    <div class="meta">${fmt(s.start)}–${fmt(s.end)}${s.room ? " · " + esc(s.room) : ""}${s.speakers.length ? ' · ' + esc(speakersLine(s)) : ''}</div>
+    ${expanded ? `<div class="details">
+      ${PICKS[id] ? `<p class="why"><b>Why it's suggested:</b> ${esc(PICKS[id])}</p>` : ''}
+      ${s.description ? `<p>${esc(s.description)}</p>` : '<p class="muted">No description published.</p>'}
+    </div>` : ''}
+    <div class="actions">
+      <button type="button" class="swap" data-swap="${esc(slot.id)}" data-sid="${esc(id)}">Swap to this</button>
+      <button class="more" data-toggle="a${id}">${expanded ? 'Hide details ▲' : 'Details ▼'}</button>
+    </div>
   </div>`;
 }
 
@@ -474,7 +525,7 @@ function agendaIds(ch) {
   return SLOTS.flatMap((s) => s.fixed || [ch[s.id]]).filter((id) => id && id !== 'skip' && S[id]);
 }
 
-function timeline(ch) {
+function timeline(ch, { alternatives = false } = {}) {
   return SLOTS.map((slot) => {
     let body;
     if (slot.fixed) body = slot.fixed.map((id) => card(id)).join('');
@@ -483,8 +534,9 @@ function timeline(ch) {
       const stay = id && slot.options && !slot.options.includes(id) && id !== 'skip';
       body = !id || id === 'skip' ? '<div class="card fixed free">Free time</div>'
         : card(id, { prefix: stay ? 'Continuing: ' : '' });
+      if (alternatives) body += altsHtml(slot, id);
     }
-    return `<div class="slotlabel">${slot.label}</div>${body}`;
+    return `<div class="slotlabel" data-slot="${esc(slot.id)}">${slot.label}</div>${body}`;
   }).join('');
 }
 
@@ -564,6 +616,39 @@ function showOnMap(id) {
   $('map').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// Saved agendas never change (shared links stay stable), so a swap saves a copy
+// with one slot changed, keeps the local name, and opens the new link.
+function swapNote() {
+  const from = new URLSearchParams(location.search).get('from');
+  if (!from || !/^[A-Za-z0-9_-]{8}$/.test(from)) return '';
+  return `<p class="swapnote">Swapped. This is a new link; <a href="${BASE}a/${esc(from)}">the old one</a> still shows the previous agenda.</p>`;
+}
+async function swapTo(slotId, sid, btn) {
+  const before = renderView.data.choices, prev = before[slotId];
+  const ch = { ...before, [slotId]: sid };
+  const startOf = (o) => Math.min(...o.options.map((i) => toMin(S[i].start)));
+  // Leaving a long session: free the later slots it was holding.
+  if (prev && prev !== 'skip' && S[prev]) for (const o of SLOTS)
+    if (o.options && o.id !== slotId && ch[o.id] === prev && startOf(o) > startOf(SLOTS.find((x) => x.id === slotId))) ch[o.id] = 'skip';
+  // Joining a long session: stay in it for the slots it runs through.
+  for (const o of overlappedSlots(sid)) ch[o.id] = sid;
+  // Anything left pointing at a long session you're no longer in.
+  for (const o of SLOTS) if (o.options && ch[o.id] && ch[o.id] !== 'skip' && !o.options.includes(ch[o.id])
+    && !runningLabs(o, ch).includes(ch[o.id])) ch[o.id] = 'skip';
+  btn.disabled = true; btn.textContent = 'Swapping…';
+  try {
+    const r = await fetch(`${BASE}api/agendas`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ choices: ch }),
+    });
+    if (!r.ok) throw new Error((await r.json()).detail || r.status);
+    const { id } = await r.json();
+    store.set(key('saved'), [{ id, at: Date.now(), name: aliasOf(VIEW_ID) }, ...store.get(key('saved'), [])].slice(0, 10));
+    location.href = `${BASE}a/${id}?from=${VIEW_ID}&at=${encodeURIComponent(slotId)}`;
+  } catch (e) {
+    btn.disabled = false; btn.textContent = `Couldn't swap (${e.message}). Retry`;
+  }
+}
+
 async function renderView() {
   header(agendaTitle(aliasOf(VIEW_ID)), '');
   $('nav').hidden = true;
@@ -576,12 +661,13 @@ async function renderView() {
     $('main').innerHTML = `<p>This agenda was made for a different event than the one this site now shows.</p><a class="btn" href="${BASE}">Build a new one</a>`;
     return;
   }
-  const url = location.href.split('#')[0];
+  const url = location.origin + location.pathname;   // no ?from / ?now in shared links
   $('main').innerHTML = `<div class="stack">
       <div class="link">${esc(url)}</div>
       <button class="btn" id="share">${navigator.share ? 'Share link' : 'Copy link'}</button>
     </div>
-    ${timeline(renderView.data.choices)}
+    ${swapNote()}
+    ${timeline(renderView.data.choices, { alternatives: true })}
     <div id="mapwrap">${mapHtml(renderView.data.choices)}</div>
     <div class="stack" style="margin-top:16px">
       <button class="btn ghost" id="edit">Edit a copy</button>
@@ -596,8 +682,10 @@ async function renderView() {
   markNow();
   if (!renderView.scrolled) {                 // first open during the event: jump to what's on
     renderView.scrolled = true;
-    const target = document.querySelector('.card.live, .card.upnext');
-    if (target) target.scrollIntoView({ block: 'center' });
+    const at = new URLSearchParams(location.search).get('at');   // just swapped: back to that slot
+    const swapped = at && [...document.querySelectorAll('.slotlabel[data-slot]')].find((e) => e.dataset.slot === at);
+    const target = swapped || document.querySelector('.card.live, .card.upnext');
+    if (target) target.scrollIntoView({ block: swapped ? 'start' : 'center' });
   }
   $('edit').onclick = () => {
     store.set(key('draft'), renderView.data.choices);
@@ -688,6 +776,10 @@ document.addEventListener('click', (e) => {
     return;
   }
   if (e.target.closest('a.ext')) return;
+  const al = e.target.closest('[data-alts]');
+  if (al) { const id = al.dataset.alts; altsOpen.has(id) ? altsOpen.delete(id) : altsOpen.add(id); const y = scrollY; render(); scrollTo(0, y); return; }
+  const sw = e.target.closest('[data-swap]');
+  if (sw) return swapTo(sw.dataset.swap, sw.dataset.sid, sw);
   const t = e.target.closest('[data-toggle]');
   if (t) { const id = t.dataset.toggle; open.has(id) ? open.delete(id) : open.add(id); const y = scrollY; render(); scrollTo(0, y); return; }
   const c = e.target.closest('.card[data-id]:not(.fixed)');
@@ -717,6 +809,12 @@ fetch(`${BASE}api/data`).then((r) => r.json()).then((d) => {
   draftName = store.get(key('draft-name'), '');
   document.title = `${EVENT.name} · Agenda`;
   $('eyebrow').textContent = [EVENT.name, EVENT.subtitle].filter(Boolean).join(' · ');
+  if ((EVENT.links || []).length) {
+    $('links').innerHTML = EVENT.links.map((l) => l.current
+      ? `<span aria-current="page">${esc(l.label)}</span>`
+      : `<a href="${esc(l.url)}">${esc(l.label)}</a>`).join('');
+    $('links').hidden = false;
+  }
   if (location.hash === '#review') { step = SLOTS.length + PRE; history.replaceState(null, '', BASE); }
   render();
 }).catch(() => { $('main').innerHTML = '<p class="err">Couldn\'t load the agenda. Refresh to retry.</p>'; });

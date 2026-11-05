@@ -100,6 +100,8 @@ def test_explicit_slots_json_is_used(tmp_path):
     ("event.json", lambda e: e | {"timezone": "Mars/Base"}, "unknown timezone"),
     ("event.json", lambda e: e | {"date": "18/06/2026"}, "YYYY-MM-DD"),
     ("picks.json", lambda p: p | {"nope": "x"}, "unknown session"),
+    ("event.json", lambda e: e | {"links": [{"label": "Day 2"}]}, "label.*url"),
+    ("event.json", lambda e: e | {"links": [{"label": "x", "url": "javascript:alert(1)"}]}, "http"),
     ("rooms.json", lambda r: r | {"X": {"map": "9", "x": 1, "y": 1}}, "isn't in event.json"),
 ])
 def test_bad_event_folders_say_what_is_wrong(tmp_path, name, fn, msg):
@@ -132,3 +134,12 @@ def test_check_event_tool_on_sample():
     r = subprocess.run([sys.executable, ROOT / "tools/check_event.py", SAMPLE], capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
     assert r.stdout.startswith("OK: Example Tech Summit")
+
+
+def test_links_are_passed_to_the_page(tmp_path):
+    ev = _copy_sample(tmp_path)
+    _edit(ev, "event.json", lambda e: e | {"links": [{"label": "Day 1", "url": "../day1/", "current": True},
+                                                     {"label": "Day 2", "url": "../day2/"}]})
+    data = load_event(ev)
+    assert [l["url"] for l in data["event"]["links"]] == ["../day1/", "../day2/"]
+    assert data["event"]["links"][1]["current"] is False

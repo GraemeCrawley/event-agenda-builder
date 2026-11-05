@@ -26,7 +26,9 @@ Put the user's folder in `events/<slug>/` (gitignored). Copy
   (`YYYY-MM-DD`, enables now/up-next on that day), `timezone` (IANA, default
   UTC), `venue`, `intro`, `skip_note`, `link_label` (tooltip on each session's
   ↗ link), `maps` (list of `{id, name, short, description, image, width, height}`,
-  images in `maps/`), `map_source` (`{label, url}`).
+  images in `maps/`), `map_source` (`{label, url}`), `links` (list of
+  `{label, url, current?}` shown as buttons under the title; for a multi-day
+  event use relative URLs like `../day2/` and mark this day `"current": true`).
 - `sessions.json` (required): list of `{id, start, end, title, room, description,
   speakers: [{name, role, org}], url}`. Times are 24-hour `HH:MM` in the event's
   timezone. Ids unique, any `[A-Za-z0-9_-]`; `s00`, `s01`... in agenda order is
@@ -48,6 +50,8 @@ Put the user's folder in `events/<slug>/` (gitignored). Copy
 The format is one day per event folder. For a multi-day event, make one
 folder per day (each with its own `id` and `date`) and run one instance per day
 (different `PORT` and compose project name, e.g. `docker compose -p day2 up -d`), or ask the human which day matters.
+Behind a reverse proxy, serve the days as sibling paths (`/<event>/day1/`, `/<event>/day2/`)
+and add `links` to each `event.json` so people can switch days.
 
 ## Turning an agenda into sessions.json
 
